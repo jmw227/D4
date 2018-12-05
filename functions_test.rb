@@ -8,7 +8,7 @@ class FunctionsTest < Minitest::Test
     @nodes = []
     @words = []
     @perms = []
-    @legal_words = []
+    @legal_words = {}
     @real_words = []
   end
 
@@ -19,8 +19,8 @@ class FunctionsTest < Minitest::Test
   end
   
   def test_file_in_file_does_not_exist
-    fname = ''
-	assert_output(/file does not exist/) {file_in fname}
+    fname = 'fake.hacker'
+	assert_output(/fake.hacker does not exist/) {file_in fname}
   end
   
   def test_parse_file_single_line
@@ -56,10 +56,28 @@ class FunctionsTest < Minitest::Test
 	assert_equal 2, @words.length
   end
   
+  def test_permutation_0
+    word = []
+	permutation word, 0,0
+	assert_equal 0, @perms.length
+  end
+  
   def test_permutation_2
     word = ['a','b']
 	permutation word, 0,1
 	assert_equal 2, @perms.length
+  end
+  
+  def test_swap
+    word = 'hi'
+	result = swap word, 0,1
+	assert_equal 'ih', result
+  end
+  
+  def test_swap_1
+    word = 'i'
+	result = swap word, 0,0
+	assert_equal 'i', result
   end
   
   def test_generate_dict
@@ -69,10 +87,31 @@ class FunctionsTest < Minitest::Test
   end
   
   def test_find_real_words
-    @perms = ['ab']
-	@legal_words = ['ab']
+    @words = ['ba']
+	@legal_words = {"ab"=>["ab","ba"]}
 	find_real_words
 	assert_equal 1, @real_words.length
+  end
+  
+  def test_find_real_words_no_real_word
+    @words=['qq']
+	@legal_words = {"ab"=>["ab","ba"]}
+	find_real_words
+	assert_equal 0, @real_words.length
+  end
+  
+  def test_find_longest_word
+    @real_words = ['a','ab','abc']
+	assert_equal 'abc', find_longest_word
+  end
+  
+  def test_find_longest_word_equal_lengths
+    @real_words = ['abc', 'cab','bac']
+	assert_equal 'abc', find_longest_word
+  end
+  
+  def test_find_longest_word_no_words
+    assert_nil find_longest_word
   end
 
 end

@@ -4,7 +4,7 @@ def file_in(file_name)
   if File.exist?(file_name)
     file = File.open(file_name, 'r')
   else
-    puts 'file does not exist'
+    puts "#{file_name} does not exist"
   end
   file
 end
@@ -34,11 +34,12 @@ def traverse(start, word)
   end
 end
 
+# DEPRICATED
 def permutation(word, left, right)
   if left == right
     temp = word.join ''
     temp = temp.downcase
-    @perms.push temp
+    @perms.push temp unless temp == ''
   else
     (left..right).each do |i|
       word = swap word, left, i
@@ -57,12 +58,26 @@ end
 
 def generate_dict(file)
   file.each do |line|
-    @legal_words.push line.strip
+    w = line.strip
+    @legal_words[w.each_char.sort.join] = [] unless @legal_words.key?(w.each_char.sort.join)
+    @legal_words[w.each_char.sort.join] << w
   end
 end
 
 def find_real_words
-  @perms.each do |n|
-    @real_words.push n if @legal_words.include? n
+  @words.each_with_object({}) do |w, g|
+    key = w.downcase.chars.sort.join
+    values = if @legal_words.key?(key)
+               (@legal_words[key] - [w])
+             else
+               []
+             end
+    g[w] = values
+    @real_words = g.values
   end
+  @real_words = @real_words.flatten
+end
+
+def find_longest_word
+  @real_words.max_by(&:length) unless @real_words.empty?
 end
